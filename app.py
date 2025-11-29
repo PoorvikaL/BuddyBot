@@ -2,11 +2,14 @@ import os
 import pandas as pd
 import streamlit as st
 from dotenv import load_dotenv
+from datetime import date
 from rag_pipeline import build_rag_chain
 from planner import generate_onboarding_plan
 from logger import log_interaction, log_tasks, INTERACTIONS_PATH, TASKS_PATH
+import google.generativeai as genai
 
 load_dotenv()
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 st.set_page_config(
     page_title="Employee Onboarding Copilot",
@@ -16,31 +19,23 @@ st.set_page_config(
 
 CUSTOM_CSS = """
 <style>
-.block-container {
-    padding-top: 3rem;
-    padding-bottom: 1.5rem;
-}
+.block-container { padding-top: 3rem; padding-bottom: 1.5rem; }
 [data-testid="stChatMessage"] {
     border-radius: 18px;
     padding: 0.75rem 1rem;
     margin-bottom: 0.75rem;
     border: 1px solid rgba(148,163,184,0.35);
 }
-h1 {
-    font-size: 2.6rem;
-    margin-bottom: 1.2rem;
-}
+h1 { font-size: 2.6rem; margin-bottom: 1.2rem; }
 </style>
 """
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
-
 
 @st.cache_resource
 def load_components():
     return build_rag_chain()
 
-
-llm, vectordb, rag_chain = load_components()
+rag_chain = load_components()
 
 tab_plan, tab_chat, tab_analytics = st.tabs(
     ["🗓️ Plan Onboarding", "💬 Copilot Chat", "📊 Analytics"]
@@ -50,7 +45,7 @@ tab_plan, tab_chat, tab_analytics = st.tabs(
 with tab_plan:
     st.title("Onboarding Planner")
 
-    col_info, col_plan = st.columns([1, 2])
+    col_info, col_plan = st.columns(2)
 
     with col_info:
         st.markdown("### New hire details")
@@ -63,7 +58,7 @@ with tab_plan:
         st.markdown("### Generated plan")
         if generate_btn and user_name and role and start_date:
             start_date_str = start_date.isoformat()
-            tasks = generate_onboarding_plan(user_name, role, start_date_str, llm)
+            tasks = generate_onboarding_plan(user_name, role, start_date_str)
             if tasks:
                 log_tasks(user_name, role, start_date_str, tasks)
                 st.success("Onboarding plan generated and saved.")
@@ -103,7 +98,6 @@ with tab_chat:
         with st.chat_message("user", avatar="🧑‍💻"):
             st.markdown(prompt)
 
-        # assistant block – rag_chain is a normal function, no .invoke
         with st.chat_message("assistant", avatar="🤖"):
             with st.spinner("Looking into your onboarding docs..."):
                 answer = rag_chain(prompt)

@@ -1,57 +1,56 @@
 from dotenv import load_dotenv
 import os
-from langchain_community.document_loaders import PyPDFLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_chroma import Chroma
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+import chromadb
+from chromadb.utils import embedding_functions
+from PyPDF2 import PdfReader
 
 load_dotenv()
 
-DATA_DIR = "data"
-CHROMA_DIR = "chroma_db"
-
+DATA_DIR = "data"  # put your PDFs here
+CHROMA_DIR = "chroma_db"  # Chroma persistence folder
 
 def load_documents():
     docs = []
     for fname in os.listdir(DATA_DIR):
-        if fname.lower().endswith(".pdf"):
-            path = os.path.join(DATA_DIR, fname)
-            loader = PyPDFLoader(path)
-            pdf_docs = loader.load()
-            for d in pdf_docs:
-                d.metadata["source"] = fname
-            docs.extend(pdf_docs)
+        if not fname.lower().endswith(".pdf"):
+            continue
+        path = os.path.join(DATA_DIR, fname)
+        reader = PdfReader(path)
+        text = ""
+        for page in reader.pages:
+            text += page.extract_text() or ""
+        if text.strip():
+            docs.append((fname, text))
     return docs
 
-
-def split_documents(documents):
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=800,
-        chunk_overlap=150,
-        add_start_index=True,
+def create_vector_store(docs):
+    os.makedirs(CHROMA_DIR, exist_ok=True)
+    
+    client = chromadb.PersistentClient(path=CHROMA_DIR)
+    
+    embed_fn = embedding_functions.DefaultEmbeddingFunction()
+    collection = client.get_or_create_collection(
+        name="onboarding_docs",
+        embedding_function=embed_fn,
     )
-    return splitter.split_documents(documents)
-
-
-def create_vector_store(chunks):
-    embeddings = GoogleGenerativeAIEmbeddings(
-        model="text-embedding-004",
-        google_api_key=os.getenv("GEMINI_API_KEY"),
-    )
-    vectordb = Chroma.from_documents(
-        chunks,
-        embedding=embeddings,
-        persist_directory=CHROMA_DIR,
-    )
-    return vectordb
-
-
-
+    
+    ids = []
+    texts = []
+    metadatas = []
+    for i, (fname, content) in enumerate(docs):
+        ids.append(f"doc-{i}")
+        texts.append(content)
+        metadatas.append({"source": fname})
+    
+    if ids:
+        collection.upsert(ids=ids, documents=texts, metadatas=metadatas)
+        print(f"Ingested {len(ids)} documents into Chroma.")
+    else:
+        print("No PDF content found to ingest.")
 
 if __name__ == "__main__":
-    docs = load_documents()
-    print(f"Loaded {len(docs)} document pages.")
-    chunks = split_documents(docs)
-    print(f"Split into {len(chunks)} chunks.")
-    create_vector_store(chunks)
+    documents = load_documents()
+    print(f"Loaded {len(documents)} documents.")
+    create_vector_store(documents)
     print("Vector store created in 'chroma_db/'.")
+
