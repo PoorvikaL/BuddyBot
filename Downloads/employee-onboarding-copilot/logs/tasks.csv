@@ -1,0 +1,21 @@
+task_id,user_name,role,start_date,title,day,due_date,type,status
+T1,Poorvika,Backend developer,2025-11-29,Complete HR and payroll paperwork,1,2025-11-29,form,pending
+T2,Poorvika,Backend developer,2025-11-29,Set up company laptop and access accounts,2,2025-11-30,tools,pending
+T3,Poorvika,Backend developer,2025-11-29,Meet the Backend Development Team,3,2025-12-01,meeting,pending
+T4,Poorvika,Backend developer,2025-11-29,Configure local development environment,4,2025-12-02,tools,pending
+T5,Poorvika,Backend developer,2025-11-29,Review core project documentation,5,2025-12-03,training,pending
+T6,Poorvika,Backend developer,2025-11-29,1:1 with Engineering Manager,6,2025-12-04,meeting,pending
+T7,Poorvika,Backend developer,2025-11-29,Introduction to the main codebase,7,2025-12-05,training,pending
+T8,Poorvika,Backend developer,2025-11-29,Shadow a team member on a task,8,2025-12-06,other,pending
+T9,Poorvika,Backend developer,2025-11-29,Gain access to production monitoring tools,9,2025-12-07,tools,pending
+T10,Poorvika,Backend developer,2025-11-29,Discuss first sprint tasks and goals,10,2025-12-08,meeting,pending
+T1,keerthi,developer,2025-11-29,Complete HR Onboarding Paperwork,1,2025-11-29,form,pending
+T2,keerthi,developer,2025-11-29,Meet the Development Team,2,2025-11-30,meeting,pending
+T3,keerthi,developer,2025-11-29,Set Up Development Environment,3,2025-12-01,tools,pending
+T4,keerthi,developer,2025-11-29,Project Overview and Documentation Review,4,2025-12-02,training,pending
+T5,keerthi,developer,2025-11-29,First Manager 1:1 Check-in,5,2025-12-03,meeting,pending
+T6,keerthi,developer,2025-11-29,Explore Internal Knowledge Base,6,2025-12-04,other,pending
+T7,keerthi,developer,2025-11-29,Code Review Process and Best Practices,7,2025-12-05,training,pending
+T8,keerthi,developer,2025-11-29,Pair Programming Session with Team Member,8,2025-12-06,other,pending
+T9,keerthi,developer,2025-11-29,Attend Weekly Sprint Planning Meeting,9,2025-12-07,meeting,pending
+T10,keerthi,developer,2025-11-29,Submit First Code Contribution,10,2025-12-08,other,pending
