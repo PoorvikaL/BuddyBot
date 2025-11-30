@@ -1,5 +1,4 @@
-echo ".env
+.env
 __pycache__/
 logs/
 .streamlit/secrets.toml
-" > .gitignore
